@@ -131,7 +131,8 @@ class WC_Catalog_Offer_Mode {
         .woocommerce ul.order_details li.total,
         .woocommerce ul.order_details li.order_total, 
         .wp-block-woocommerce-checkout-order-summary-totals-block, 
-        .wc-block-components-totals-item{
+        .wc-block-components-totals-item,
+        .wc-offer-hidden-field{
             display: none !important;
         }
         .wc-block-components-totals-wrapper{
@@ -178,12 +179,24 @@ class WC_Catalog_Offer_Mode {
 
     public function simplify_checkout_fields( $fields ) {
         if ( isset( $fields['billing'] ) ) {
-            $allowed = [ 'billing_first_name', 'billing_last_name', 'billing_email', 'billing_phone' ];
+            $allowed = [ 'billing_first_name', 'billing_last_name', 'billing_phone' ];
 
             foreach ( $fields['billing'] as $key => $field ) {
-                if ( ! in_array( $key, $allowed, true ) ) {
-                    unset( $fields['billing'][ $key ] );
+                if ( in_array( $key, $allowed, true ) ) {
+                    continue;
                 }
+
+                $fields['billing'][ $key ]['required'] = false;
+
+                if ( isset( $fields['billing'][ $key ]['class'] ) && is_array( $fields['billing'][ $key ]['class'] ) ) {
+                    $fields['billing'][ $key ]['class'][] = 'wc-offer-hidden-field';
+                } else {
+                    $fields['billing'][ $key ]['class'] = [ 'wc-offer-hidden-field' ];
+                }
+
+                $fields['billing'][ $key ]['priority'] = isset( $fields['billing'][ $key ]['priority'] )
+                    ? $fields['billing'][ $key ]['priority'] + 1000
+                    : 1000;
             }
 
             if ( isset( $fields['billing']['billing_first_name'] ) ) {
@@ -200,21 +213,12 @@ class WC_Catalog_Offer_Mode {
                 $fields['billing']['billing_last_name']['class']       = [ 'form-row-wide' ];
             }
 
-            if ( isset( $fields['billing']['billing_email'] ) ) {
-                $fields['billing']['billing_email']['label']       = __( 'Adres e-mail', 'woo-catalog-offer-mode' );
-                $fields['billing']['billing_email']['placeholder'] = __( 'Adres e-mail', 'woo-catalog-offer-mode' );
-                $fields['billing']['billing_email']['priority']    = 30;
-                $fields['billing']['billing_email']['class']       = [ 'form-row-wide' ];
-                $fields['billing']['billing_email']['required']    = true;
-                $fields['billing']['billing_email']['type']        = 'email';
-            }
-
             if ( isset( $fields['billing']['billing_phone'] ) ) {
-                $fields['billing']['billing_phone']['label']       = __( 'Numer telefonu (opcjonalnie)', 'woo-catalog-offer-mode' );
-                $fields['billing']['billing_phone']['placeholder'] = __( 'Numer telefonu (opcjonalnie)', 'woo-catalog-offer-mode' );
-                $fields['billing']['billing_phone']['priority']    = 40;
+                $fields['billing']['billing_phone']['label']       = __( 'Numer telefonu', 'woo-catalog-offer-mode' );
+                $fields['billing']['billing_phone']['placeholder'] = __( 'Numer telefonu', 'woo-catalog-offer-mode' );
+                $fields['billing']['billing_phone']['priority']    = 30;
                 $fields['billing']['billing_phone']['class']       = [ 'form-row-wide' ];
-                $fields['billing']['billing_phone']['required']    = false;
+                $fields['billing']['billing_phone']['required']    = true;
             }
         }
 
@@ -227,10 +231,10 @@ class WC_Catalog_Offer_Mode {
         }
 
         if ( isset( $fields['order']['order_comments'] ) ) {
-            $fields['order']['order_comments']['label']       = __( 'Wiadomość (opcjonalnie)', 'woo-catalog-offer-mode' );
-            $fields['order']['order_comments']['placeholder'] = __( 'Możesz dodać dodatkowe informacje do zapytania.', 'woo-catalog-offer-mode' );
-            $fields['order']['order_comments']['required']    = false;
-            $fields['order']['order_comments']['priority']    = 50;
+            $fields['order']['order_comments']['label']       = __( 'Wiadomość', 'woo-catalog-offer-mode' );
+            $fields['order']['order_comments']['placeholder'] = __( 'Napisz, czego potrzebujesz.', 'woo-catalog-offer-mode' );
+            $fields['order']['order_comments']['required']    = true;
+            $fields['order']['order_comments']['priority']    = 40;
         }
 
         return $fields;
