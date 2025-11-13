@@ -1,0 +1,256 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+@import "whitelist/whitelist.css";
+@import "conditional/conditional.css";
+
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,500;1,600&display=swap');
+
+html {
+    scroll-behavior: smooth;
+}
+
+body{
+    font-family: 'Montserrat', sans-serif !important; 
+    @apply text-gray-600 bg-white;
+}
+
+h1, h2, h3, h4, h5 {
+    font-family: 'Montserrat', sans-serif !important; 
+    @apply text-black;
+}
+
+@media (max-width: 1650px) {
+    /* html {
+        font-size: 13px;
+    } */
+} 
+
+@media (max-width: 1320px) {
+    html {
+       font-size: 14px;
+   } 
+} 
+
+@media (max-width: 768px) {
+     html {
+        font-size: 13px;
+    } 
+    .wp-block-gallery .blocks-gallery-item{
+        @apply w-full mx-0 !important;
+    }
+} 
+
+
+
+.slidNav2 button, .tns-nav button{
+    @apply bg-gray-700  rounded-full mr-1 outline-none !important;
+    height: 6px;
+    width: 15px;
+
+}
+
+.slidNav2 .tns-nav-active, .tns-nav .tns-nav-active{
+width: 27px;
+@apply bg-primary-100 !important;
+}
+
+#tns2-ow .tns-nav, .opinie_slider_out .tns-nav{
+    @apply text-center mt-3;
+}
+
+.blocks-gallery-grid figure{
+    @apply overflow-hidden rounded-lg !important;
+}
+.wp-block-gallery{
+    @apply my-10 mb-8;
+}
+.opinie_slider_out .tns-nav button{
+    height: 13px;
+    width: 13px;
+    @apply rounded-full border border-gray-300 bg-transparent !important;
+}
+.opinie_slider_out .tns-nav .tns-nav-active{
+    @apply bg-primary-100 border-primary-100 !important;
+}
+
+
+.wpcf7-form input[type="text"], .wpcf7-form input[type="tel"], .wpcf7-form input[type="email"], .wpcf7-form textarea{
+    @apply border-b-4 border-white text-white rounded-none bg-transparent pl-3 shadow-none !important;
+    &:focus{
+        border-color:#FFD9C5 !important; 
+    }
+}
+
+.wpcf7-form input::placeholder, .wpcf7-form  textarea::placeholder{
+    color: #FFD9C5;
+    opacity:1;
+}
+.wpcf7-form textarea{
+    @apply mt-6 pl-0 !important;
+    height: 11rem;
+}
+/* custom checkbox styling for contact form 7 checkbox */
+span.wpcf7-list-item {
+    display: inline-block;
+    margin: 0;
+    }
+    .wpcf7-acceptance .wpcf7-list-item {
+    position: relative;
+    margin-top: 2rem;
+    }
+    .wpcf7-acceptance label {
+    cursor: pointer;
+    }
+    .wpcf7-acceptance input[type=checkbox] {
+    /*position: relative;*/
+    position: absolute;
+    visibility: hidden;
+    width: 21px;
+    height: 23px;
+    top: 0;
+    left: 0;
+    }
+    .wpcf7-acceptance input[type=checkbox] + span {
+    /* border: 3px solid red; */
+    }
+    .wpcf7-acceptance input[type=checkbox] + span:before {
+    display: block;
+    position: absolute;
+    content: '';
+    border-radius: 0;
+    height: 21px;
+    width: 23px;
+    top: 5px;
+    left: 0px;
+    border: 2px solid #FFF;
+    border-radius: 2px;
+    }
+    .wpcf7-acceptance input[type=checkbox] + span:after {
+    display: block;
+    position: absolute;
+    content: "\2713";
+    height: 21px;
+    width: 23px;
+    top: 0;
+    left: 0;
+    visibility: hidden;
+    font-size: 18px;
+    text-align: center;
+    line-height: 30px;
+    }
+    .wpcf7-acceptanceinput[type=checkbox]:checked + span:before {
+    background: transparent;
+    }
+    .wpcf7-acceptance input[type=checkbox]:checked + span:after {
+    visibility: visible;
+    }
+    .wpcf7-list-item-label {
+    margin-left: 40px;
+    display: inline-block;
+    }
+    .wpcf7-acceptance label span{
+        @apply text-base font-normal capitalize !important;
+        color: #FFD9C5 !important
+    }
+
+    .wpcf7-submit{
+       @apply w-auto transition-all duration-200 p-4 px-8 mt-10 font-semibold inline-block rounded-full bg-white font-semibold text-sm text-primary-100 !important;
+    
+       &:hover {
+        @apply bg-gray-900 text-white !important;
+       }
+    }
+
+    .wpcf7-not-valid-tip {
+        color: #ac0909;
+        font-size: .6rem;
+    }
+    .wpcf7 form.invalid .wpcf7-response-output, .wpcf7 form.unaccepted .wpcf7-response-output {
+        border-color: #ffb900;
+        color: #FFF;
+        font-size: .8rem;
+        border-radius: 5px;
+    }
+
+    .map iframe{
+        width: 100% !important;
+    }
+
+
+    .wow{
+        visibility: hidden;
+    }
+
+    .cat_block{
+
+        @screen lg{
+            min-height:200px
+        }
+    }
+
+    .cat_select select{
+        @screen lg{
+            min-width:145px
+        }
+    }
+    
+    
+    /* === Hoxa / Tailwind styl dla komunikatów WooCommerce === */
+ body.woocommerce {   
+.woocommerce-message,
+.woocommerce-info,
+.woocommerce-error {
+  @apply my-6 p-4 rounded-xl border text-sm font-medium leading-relaxed;
+  @apply flex items-center gap-3 transition-all duration-300;
+}
+
+.woocommerce-message {
+  padding: 1rem 1.25rem;              /* p-4 px-5 */
+  margin-top: 0.75rem;                /* mt-3 */
+  font-size: 0.75rem;                 /* text-xs */
+  font-weight: 600;                   /* font-semibold */
+  transition-property: all;           /* transition-all */
+  transition-duration: 200ms;         /* duration-200 */
+  border-width: 1px;                  /* border */
+  border-color: #C9C9C9;              /* border-gray-500 */
+  border-style: solid;
+  border-radius: 9999px;              /* rounded-full */
+  color: #3E3E3E;                     /* text-black2 */
+}
+
+@media (min-width: 768px) {
+  .woocommerce-message {
+    margin-left: 0.5rem;              /* md:ml-2 */
+    padding-left: 0.75rem;            /* md:px-3 */
+    padding-right: 0.75rem;
+    margin-top: 2rem;               /* md:mt-10 */
+  }
+}
+woocommerce-message:before{
+    display: none;
+}
+.woocommerce-notices-wrapper.woocommerce-message a {
+  padding: 1rem 1.25rem;              /* p-4 px-5 */
+  margin-top: 2.5rem;                 /* mt-10 */
+  font-size: 0.75rem;                 /* text-xs */
+  font-weight: 600;                   /* font-semibold */
+  color: #fff;                        /* text-white */
+  transition-property: all;           /* transition-all */
+  transition-duration: 200ms;         /* duration-200 */
+  border-radius: 9999px;              /* rounded-full */
+  background-color: #F37836;          /* bg-primary-100 */
+}
+
+.woocommerce-message a:hover {
+  background-color: #373434;          /* hover:bg-gray-900 */
+  color: #fff;                         /* hover:text-white */
+}
+.woocommerce-message:before, .wc-block-cart-items__header-total span{
+    display: none;
+}
+  
+ }
+ 
+ 

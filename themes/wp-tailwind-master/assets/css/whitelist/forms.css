@@ -1,0 +1,50 @@
+label {
+	@apply text-sm font-sans uppercase font-bold;
+}
+
+input::placeholder,
+textarea::placeholder {
+   @apply text-gray-600;
+   opacity: 1;
+}
+
+
+input,
+textarea,
+select {
+	@apply  leading-normal rounded w-full py-3 px-2 mb-2 text-gray-600  text-base w-full ;
+	@extend .transition;
+
+	&[aria-invalid="true"] {
+		@apply border-primary-100;
+	}
+
+	&:focus {
+		@apply shadow-lg !important ;
+		outline: 0;
+	}
+}
+
+input,
+textarea {
+	&:focus {
+		@apply ;
+	}
+}
+
+textarea {
+	@apply h-24;
+}
+
+select {
+	@apply text-xs py-2 px-2;
+
+	option {
+		@apply bg-white;
+	}
+
+	&:focus {
+		@apply shadow-lg;
+		transform: none;
+	}
+}
