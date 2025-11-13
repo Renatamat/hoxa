@@ -1339,7 +1339,7 @@ function zamien_zamowienie_na_zapytanie( $translated_text, $untranslated_text, $
 add_filter( 'woocommerce_checkout_fields', 'hoxa_customize_checkout_fields' );
 function hoxa_customize_checkout_fields( $fields ) {
     if ( isset( $fields['billing'] ) ) {
-        $allowed = [ 'billing_first_name', 'billing_last_name', 'billing_email', 'billing_phone' ];
+        $allowed = [ 'billing_first_name', 'billing_last_name', 'billing_phone' ];
 
         foreach ( $fields['billing'] as $key => $field ) {
             if ( ! in_array( $key, $allowed, true ) ) {
@@ -1361,21 +1361,12 @@ function hoxa_customize_checkout_fields( $fields ) {
             $fields['billing']['billing_last_name']['class']       = [ 'form-row-wide' ];
         }
 
-        if ( isset( $fields['billing']['billing_email'] ) ) {
-            $fields['billing']['billing_email']['label']       = __( 'Adres e-mail', 'yourtheme' );
-            $fields['billing']['billing_email']['placeholder'] = __( 'Adres e-mail', 'yourtheme' );
-            $fields['billing']['billing_email']['priority']    = 30;
-            $fields['billing']['billing_email']['class']       = [ 'form-row-wide' ];
-            $fields['billing']['billing_email']['required']    = true;
-            $fields['billing']['billing_email']['type']        = 'email';
-        }
-
         if ( isset( $fields['billing']['billing_phone'] ) ) {
-            $fields['billing']['billing_phone']['label']       = __( 'Numer telefonu (opcjonalnie)', 'yourtheme' );
-            $fields['billing']['billing_phone']['placeholder'] = __( 'Numer telefonu (opcjonalnie)', 'yourtheme' );
-            $fields['billing']['billing_phone']['priority']    = 40;
+            $fields['billing']['billing_phone']['label']       = __( 'Numer telefonu', 'yourtheme' );
+            $fields['billing']['billing_phone']['placeholder'] = __( 'Numer telefonu', 'yourtheme' );
+            $fields['billing']['billing_phone']['priority']    = 30;
             $fields['billing']['billing_phone']['class']       = [ 'form-row-wide' ];
-            $fields['billing']['billing_phone']['required']    = false;
+            $fields['billing']['billing_phone']['required']    = true;
         }
     }
 
