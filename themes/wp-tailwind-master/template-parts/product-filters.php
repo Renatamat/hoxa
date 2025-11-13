@@ -8,9 +8,27 @@ defined('ABSPATH') || exit;
 $action = function_exists('wc_get_page_permalink') ? wc_get_page_permalink('shop') : home_url('/');
 
 $sel_cat   = isset($_GET['cat'])         ? sanitize_text_field($_GET['cat'])         : '';
-$sel_brand = isset($_GET['brand'])       ? sanitize_text_field($_GET['brand'])       : '';
+$sel_brand = '';
+if ( isset($_GET['product_brand']) ) {
+    $sel_brand = sanitize_text_field($_GET['product_brand']);
+} elseif ( isset($_GET['brand']) ) {
+    $sel_brand = sanitize_text_field($_GET['brand']);
+}
 $sel_size  = isset($_GET['pa_rozmiar'])  ? sanitize_text_field($_GET['pa_rozmiar'])  : '';
 $sel_q     = isset($_GET['s'])           ? sanitize_text_field($_GET['s'])           : '';
+
+$sel_size = is_string($sel_size) ? $sel_size : '';
+$sel_brand = is_string($sel_brand) ? $sel_brand : '';
+
+if ( strpos( $sel_size, ',' ) !== false ) {
+    $parts = array_map( 'trim', explode( ',', $sel_size ) );
+    $sel_size = $parts ? reset( $parts ) : '';
+}
+
+if ( strpos( $sel_brand, ',' ) !== false ) {
+    $parts = array_map( 'trim', explode( ',', $sel_brand ) );
+    $sel_brand = $parts ? reset( $parts ) : '';
+}
 
 $cats   = get_terms([
     'taxonomy'   => 'product_cat',
@@ -19,17 +37,11 @@ $cats   = get_terms([
 ]);
 
 $sizes  = taxonomy_exists('pa_rozmiar')
-    ? get_terms([
-        'taxonomy'   => 'pa_rozmiar',
-        'hide_empty' => true,
-    ])
+    ? pf_get_available_tax_terms('pa_rozmiar')
     : [];
 
 $brands = taxonomy_exists('product_brand')
-    ? get_terms([
-        'taxonomy'   => 'product_brand',
-        'hide_empty' => true,
-    ])
+    ? pf_get_available_tax_terms('product_brand')
     : [];
 
 // Nonce do AJAX
@@ -67,7 +79,7 @@ $nonce = wp_create_nonce('pf_filters_nonce');
             <!-- Kategoria produktu / product_cat -->
             <div class="w-full lg:w-4/12 lg:px-2">
                 <select
-                    id="pf-cat-top"
+                    id="pf-cat"
                     name="cat"
                     class="mt-4 mb-0 rounded-full shadow-2xl"
                 >
@@ -103,7 +115,7 @@ $nonce = wp_create_nonce('pf_filters_nonce');
             <!-- Rozmiar / atrybut pa_rozmiar -->
             <div class="w-full lg:w-4/12 lg:px-2">
                 <select
-                    id="pf-size-top"
+                    id="pf-size"
                     name="pa_rozmiar"
                     class="mt-4 mb-0 rounded-full shadow-2xl"
                 >
@@ -122,8 +134,8 @@ $nonce = wp_create_nonce('pf_filters_nonce');
             <!-- Producent / product_brand -->
             <div class="w-full lg:w-4/12 lg:px-2">
                 <select
-                    id="pf-brand-top"
-                    name="brand"
+                    id="pf-brand"
+                    name="product_brand"
                     class="mt-4 mb-0 rounded-full shadow-2xl"
                 >
                     <option value=""><?php echo esc_html__('Producent', 'yourtheme'); ?></option>

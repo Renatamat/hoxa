@@ -45,6 +45,38 @@ if ( ! function_exists('pf_get_param_values') ) {
     }
 }
 
+if ( ! function_exists( 'pf_get_current_product_ids' ) ) {
+    function pf_get_current_product_ids() {
+        static $cached = null;
+
+        if ( $cached !== null ) {
+            return $cached;
+        }
+
+        $cached = [];
+
+        global $wp_query;
+
+        if ( ! is_a( $wp_query, 'WP_Query' ) ) {
+            return $cached;
+        }
+
+        if ( empty( $wp_query->posts ) ) {
+            return $cached;
+        }
+
+        foreach ( $wp_query->posts as $post ) {
+            if ( is_object( $post ) && isset( $post->post_type ) && $post->post_type === 'product' ) {
+                $cached[] = (int) $post->ID;
+            }
+        }
+
+        $cached = array_values( array_unique( array_filter( $cached ) ) );
+
+        return $cached;
+    }
+}
+
 /**
  * Czy dany term jest aktywny (np. ?pa_rozmiar=m,l,xl)
  */
@@ -52,6 +84,98 @@ if (!function_exists('pf_term_is_active')) {
     function pf_term_is_active($taxonomy, $slug) {
         $vals = pf_get_param_values($taxonomy);
         return in_array($slug, $vals, true);
+    }
+}
+
+if ( ! function_exists( 'pf_get_available_tax_terms' ) ) {
+    function pf_get_available_tax_terms( $taxonomy ) {
+        if ( ! taxonomy_exists( $taxonomy ) ) {
+            return [];
+        }
+
+        $terms_map   = [];
+        $product_ids = pf_get_current_product_ids();
+
+        if ( ! empty( $product_ids ) ) {
+            $raw_terms = wp_get_object_terms( $product_ids, $taxonomy, [
+                'orderby' => 'name',
+                'order'   => 'ASC',
+            ] );
+
+            if ( is_wp_error( $raw_terms ) ) {
+                $raw_terms = [];
+            }
+        } else {
+            $raw_terms = get_terms([
+                'taxonomy'   => $taxonomy,
+                'hide_empty' => true,
+                'orderby'    => 'name',
+                'order'      => 'ASC',
+            ]);
+
+            if ( is_wp_error( $raw_terms ) ) {
+                $raw_terms = [];
+            }
+        }
+
+        foreach ( $raw_terms as $term ) {
+            if ( ! isset( $terms_map[ $term->slug ] ) ) {
+                $terms_map[ $term->slug ] = $term;
+            }
+        }
+
+        $active_slugs = pf_get_param_values( $taxonomy );
+
+        if ( empty( $active_slugs ) ) {
+            $legacy_key = '';
+
+            if ( $taxonomy === 'product_brand' ) {
+                $legacy_key = 'brand';
+            } elseif ( $taxonomy === 'pa_rozmiar' ) {
+                $legacy_key = 'rozmiar';
+            }
+
+            if ( $legacy_key && ! empty( $_GET[ $legacy_key ] ) ) {
+                $legacy_raw = $_GET[ $legacy_key ];
+                $legacy_vals = is_array( $legacy_raw )
+                    ? $legacy_raw
+                    : explode( ',', $legacy_raw );
+
+                foreach ( $legacy_vals as $legacy_val ) {
+                    $legacy_val = sanitize_text_field( $legacy_val );
+                    if ( $legacy_val !== '' ) {
+                        $active_slugs[] = $legacy_val;
+                    }
+                }
+
+                $active_slugs = array_values( array_unique( $active_slugs ) );
+            }
+        }
+
+        if ( ! empty( $active_slugs ) ) {
+            foreach ( $active_slugs as $slug ) {
+                if ( isset( $terms_map[ $slug ] ) ) {
+                    continue;
+                }
+
+                $term = get_term_by( 'slug', $slug, $taxonomy );
+                if ( $term && ! is_wp_error( $term ) ) {
+                    $terms_map[ $slug ] = $term;
+                }
+            }
+        }
+
+        if ( empty( $terms_map ) ) {
+            return [];
+        }
+
+        $terms = array_values( $terms_map );
+
+        usort( $terms, function ( $a, $b ) {
+            return strcasecmp( $a->name, $b->name );
+        } );
+
+        return $terms;
     }
 }
 
@@ -109,12 +233,9 @@ if (!function_exists('pf_build_filter_url')) {
  */
 if (!function_exists('pf_render_tax_filter_terms')) {
     function pf_render_tax_filter_terms( $taxonomy ) {
-        $terms = get_terms([
-            'taxonomy'   => $taxonomy,
-            'hide_empty' => true,
-        ]);
+        $terms = pf_get_available_tax_terms( $taxonomy );
 
-        if ( empty($terms) || is_wp_error($terms) ) {
+        if ( empty($terms) ) {
             return false; // nic do pokazania
         }
 
@@ -178,32 +299,36 @@ if (!function_exists('pf_render_tax_block')) {
  */
 if (!function_exists('pf_get_filter_taxonomies')) {
     function pf_get_filter_taxonomies() {
+        $taxonomies = [];
 
-        $all = get_object_taxonomies( 'product', 'objects' );
+        $manufacturer_candidates = [ 'product_brand', 'pa_producent', 'pa_marka', 'pa_producer', 'pa_brand' ];
+        $manufacturer_slug       = '';
 
-        $skip = [
-            'product_cat',
-            'product_type',
-            'product_visibility',
-            'product_shipping_class',
-            'translation_priority',
-        ];
-
-        $usable = [];
-
-        foreach ($all as $tax_name => $tax_obj) {
-            if ( in_array($tax_name, $skip, true) ) {
-                continue;
+        foreach ( $manufacturer_candidates as $candidate ) {
+            if ( taxonomy_exists( $candidate ) ) {
+                $manufacturer_slug = $candidate;
+                break;
             }
-
-            if ( empty($tax_obj->labels->singular_name) ) {
-                continue;
-            }
-
-            $label = $tax_obj->labels->singular_name;
-            $usable[ $tax_name ] = $label;
         }
 
-        return $usable;
+        if ( $manufacturer_slug !== '' ) {
+            $taxonomies[ $manufacturer_slug ] = __( 'Producent', 'yourtheme' );
+        }
+
+        $size_candidates = [ 'pa_rozmiar', 'pa_size' ];
+        $size_slug       = '';
+
+        foreach ( $size_candidates as $candidate ) {
+            if ( taxonomy_exists( $candidate ) ) {
+                $size_slug = $candidate;
+                break;
+            }
+        }
+
+        if ( $size_slug !== '' ) {
+            $taxonomies[ $size_slug ] = __( 'Rozmiar', 'yourtheme' );
+        }
+
+        return apply_filters( 'pf_filter_taxonomies', $taxonomies );
     }
 }

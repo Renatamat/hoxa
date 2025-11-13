@@ -960,19 +960,45 @@ add_action('pre_get_posts', function( $q ){
     ];
   }
 
-  if ( ! empty($_GET['rozmiar']) && taxonomy_exists('pa_rozmiar') ) {
+  $size_terms = [];
+  if ( ! empty( $_GET['pa_rozmiar'] ) ) {
+    $raw = $_GET['pa_rozmiar'];
+    $size_terms = is_array( $raw )
+      ? array_filter( array_map( 'sanitize_text_field', $raw ) )
+      : array_filter( array_map( 'sanitize_text_field', explode( ',', $raw ) ) );
+  } elseif ( ! empty( $_GET['rozmiar'] ) ) {
+    $raw = $_GET['rozmiar'];
+    $size_terms = is_array( $raw )
+      ? array_filter( array_map( 'sanitize_text_field', $raw ) )
+      : array_filter( array_map( 'sanitize_text_field', explode( ',', $raw ) ) );
+  }
+
+  if ( ! empty( $size_terms ) && taxonomy_exists('pa_rozmiar') ) {
     $tax_query[] = [
-      'taxonomy' => 'rozmiar',
+      'taxonomy' => 'pa_rozmiar',
       'field'    => 'slug',
-      'terms'    => sanitize_text_field($_GET['rozmiar']),
+      'terms'    => $size_terms,
     ];
   }
 
-  if ( ! empty($_GET['brand']) && taxonomy_exists('product_brand') ) {
+  $brand_terms = [];
+  if ( ! empty( $_GET['product_brand'] ) ) {
+    $raw = $_GET['product_brand'];
+    $brand_terms = is_array( $raw )
+      ? array_filter( array_map( 'sanitize_text_field', $raw ) )
+      : array_filter( array_map( 'sanitize_text_field', explode( ',', $raw ) ) );
+  } elseif ( ! empty( $_GET['brand'] ) ) {
+    $raw = $_GET['brand'];
+    $brand_terms = is_array( $raw )
+      ? array_filter( array_map( 'sanitize_text_field', $raw ) )
+      : array_filter( array_map( 'sanitize_text_field', explode( ',', $raw ) ) );
+  }
+
+  if ( ! empty( $brand_terms ) && taxonomy_exists('product_brand') ) {
     $tax_query[] = [
       'taxonomy' => 'product_brand',
       'field'    => 'slug',
-      'terms'    => sanitize_text_field($_GET['brand']),
+      'terms'    => $brand_terms,
     ];
   }
 
@@ -1031,19 +1057,45 @@ add_action('pre_get_posts', function( $q ){
     ];
   }
 
-  if ( ! empty($_GET['rozmiar']) && taxonomy_exists('pa_rozmiar') ) {
+  $size_terms = [];
+  if ( ! empty( $_GET['pa_rozmiar'] ) ) {
+    $raw = $_GET['pa_rozmiar'];
+    $size_terms = is_array( $raw )
+      ? array_filter( array_map( 'sanitize_text_field', $raw ) )
+      : array_filter( array_map( 'sanitize_text_field', explode( ',', $raw ) ) );
+  } elseif ( ! empty( $_GET['rozmiar'] ) ) {
+    $raw = $_GET['rozmiar'];
+    $size_terms = is_array( $raw )
+      ? array_filter( array_map( 'sanitize_text_field', $raw ) )
+      : array_filter( array_map( 'sanitize_text_field', explode( ',', $raw ) ) );
+  }
+
+  if ( ! empty( $size_terms ) && taxonomy_exists('pa_rozmiar') ) {
     $tax_query[] = [
       'taxonomy' => 'pa_rozmiar',
       'field'    => 'slug',
-      'terms'    => sanitize_text_field($_GET['rozmiar']),
+      'terms'    => $size_terms,
     ];
   }
 
-  if ( ! empty($_GET['brand']) && taxonomy_exists('product_brand') ) {
+  $brand_terms = [];
+  if ( ! empty( $_GET['product_brand'] ) ) {
+    $raw = $_GET['product_brand'];
+    $brand_terms = is_array( $raw )
+      ? array_filter( array_map( 'sanitize_text_field', $raw ) )
+      : array_filter( array_map( 'sanitize_text_field', explode( ',', $raw ) ) );
+  } elseif ( ! empty( $_GET['brand'] ) ) {
+    $raw = $_GET['brand'];
+    $brand_terms = is_array( $raw )
+      ? array_filter( array_map( 'sanitize_text_field', $raw ) )
+      : array_filter( array_map( 'sanitize_text_field', explode( ',', $raw ) ) );
+  }
+
+  if ( ! empty( $brand_terms ) && taxonomy_exists('product_brand') ) {
     $tax_query[] = [
       'taxonomy' => 'product_brand',
       'field'    => 'slug',
-      'terms'    => sanitize_text_field($_GET['brand']),
+      'terms'    => $brand_terms,
     ];
   }
 
@@ -1066,9 +1118,21 @@ function pf_filter_terms_cb(){
     wp_send_json_error(['message'=>'Bad nonce'], 403);
   }
 
-  $cat   = isset($_POST['cat'])     ? sanitize_text_field($_POST['cat'])     : '';
-  $size  = isset($_POST['pa_rozmiar']) ? sanitize_text_field($_POST['pa_rozmiar']) : '';
-  $brand = isset($_POST['brand'])   ? sanitize_text_field($_POST['brand'])   : '';
+  $cat   = isset($_POST['cat']) ? sanitize_text_field($_POST['cat']) : '';
+
+  $size = '';
+  if ( isset($_POST['pa_rozmiar']) ) {
+    $size = sanitize_text_field($_POST['pa_rozmiar']);
+  } elseif ( isset($_POST['rozmiar']) ) {
+    $size = sanitize_text_field($_POST['rozmiar']);
+  }
+
+  $brand = '';
+  if ( isset($_POST['product_brand']) ) {
+    $brand = sanitize_text_field($_POST['product_brand']);
+  } elseif ( isset($_POST['brand']) ) {
+    $brand = sanitize_text_field($_POST['brand']);
+  }
 
   $tax_query = [];
 
@@ -1143,7 +1207,7 @@ function pf_filter_terms_cb(){
   };
 
   $available_categories = $collect_terms($ids, 'product_cat');
-  $available_sizes      = $collect_terms($ids, 'rozmiar');
+  $available_sizes      = $collect_terms($ids, 'pa_rozmiar');
   $available_brands     = $collect_terms($ids, 'product_brand');
 
   wp_send_json_success([
@@ -1270,4 +1334,141 @@ function zamien_zamowienie_na_zapytanie( $translated_text, $untranslated_text, $
     }
 
     return $translated_text;
+}
+
+add_filter( 'woocommerce_checkout_fields', 'hoxa_customize_checkout_fields' );
+function hoxa_customize_checkout_fields( $fields ) {
+    if ( isset( $fields['billing'] ) ) {
+        $allowed = [ 'billing_first_name', 'billing_last_name', 'billing_email', 'billing_phone' ];
+
+        foreach ( $fields['billing'] as $key => $field ) {
+            if ( ! in_array( $key, $allowed, true ) ) {
+                unset( $fields['billing'][ $key ] );
+            }
+        }
+
+        if ( isset( $fields['billing']['billing_first_name'] ) ) {
+            $fields['billing']['billing_first_name']['label']       = __( 'Imię', 'yourtheme' );
+            $fields['billing']['billing_first_name']['placeholder'] = __( 'Imię', 'yourtheme' );
+            $fields['billing']['billing_first_name']['priority']    = 10;
+            $fields['billing']['billing_first_name']['class']       = [ 'form-row-wide' ];
+        }
+
+        if ( isset( $fields['billing']['billing_last_name'] ) ) {
+            $fields['billing']['billing_last_name']['label']       = __( 'Nazwisko', 'yourtheme' );
+            $fields['billing']['billing_last_name']['placeholder'] = __( 'Nazwisko', 'yourtheme' );
+            $fields['billing']['billing_last_name']['priority']    = 20;
+            $fields['billing']['billing_last_name']['class']       = [ 'form-row-wide' ];
+        }
+
+        if ( isset( $fields['billing']['billing_email'] ) ) {
+            $fields['billing']['billing_email']['label']       = __( 'Adres e-mail', 'yourtheme' );
+            $fields['billing']['billing_email']['placeholder'] = __( 'Adres e-mail', 'yourtheme' );
+            $fields['billing']['billing_email']['priority']    = 30;
+            $fields['billing']['billing_email']['class']       = [ 'form-row-wide' ];
+            $fields['billing']['billing_email']['required']    = true;
+            $fields['billing']['billing_email']['type']        = 'email';
+        }
+
+        if ( isset( $fields['billing']['billing_phone'] ) ) {
+            $fields['billing']['billing_phone']['label']       = __( 'Numer telefonu (opcjonalnie)', 'yourtheme' );
+            $fields['billing']['billing_phone']['placeholder'] = __( 'Numer telefonu (opcjonalnie)', 'yourtheme' );
+            $fields['billing']['billing_phone']['priority']    = 40;
+            $fields['billing']['billing_phone']['class']       = [ 'form-row-wide' ];
+            $fields['billing']['billing_phone']['required']    = false;
+        }
+    }
+
+    if ( isset( $fields['shipping'] ) ) {
+        $fields['shipping'] = [];
+    }
+
+    if ( isset( $fields['account'] ) ) {
+        $fields['account'] = [];
+    }
+
+    if ( isset( $fields['order']['order_comments'] ) ) {
+        $fields['order']['order_comments']['label']       = __( 'Wiadomość (opcjonalnie)', 'yourtheme' );
+        $fields['order']['order_comments']['placeholder'] = __( 'Tutaj możesz dodać dodatkowe informacje.', 'yourtheme' );
+        $fields['order']['order_comments']['required']    = false;
+        $fields['order']['order_comments']['priority']    = 50;
+    }
+
+    return $fields;
+}
+
+add_filter( 'woocommerce_order_button_text', 'hoxa_quote_order_button_text' );
+function hoxa_quote_order_button_text( $text ) {
+    return __( 'Wyślij zapytanie', 'yourtheme' );
+}
+
+function hoxa_is_quote_stage() {
+    if ( ! function_exists( 'is_checkout' ) ) {
+        return false;
+    }
+
+    if ( is_checkout() || is_cart() ) {
+        return true;
+    }
+
+    return function_exists( 'is_order_received_page' ) && is_order_received_page();
+}
+
+add_filter( 'woocommerce_cart_item_price', 'hoxa_hide_quote_prices', 10, 3 );
+add_filter( 'woocommerce_cart_item_subtotal', 'hoxa_hide_quote_prices', 10, 3 );
+function hoxa_hide_quote_prices( $value, $cart_item = null, $cart_item_key = null ) {
+    if ( hoxa_is_quote_stage() ) {
+        return '';
+    }
+
+    return $value;
+}
+
+add_filter( 'woocommerce_cart_subtotal', 'hoxa_hide_quote_cart_subtotal', 10, 3 );
+function hoxa_hide_quote_cart_subtotal( $subtotal, $compound, $cart ) {
+    if ( hoxa_is_quote_stage() ) {
+        return '';
+    }
+
+    return $subtotal;
+}
+
+add_filter( 'woocommerce_cart_totals_order_total_html', 'hoxa_hide_quote_totals_html', 10, 1 );
+add_filter( 'woocommerce_cart_totals_fee_html', 'hoxa_hide_quote_totals_html', 10, 1 );
+add_filter( 'woocommerce_cart_totals_tax_html', 'hoxa_hide_quote_totals_html', 10, 1 );
+add_filter( 'woocommerce_cart_totals_shipping_html', 'hoxa_hide_quote_totals_html', 10, 1 );
+function hoxa_hide_quote_totals_html( $value ) {
+    if ( hoxa_is_quote_stage() ) {
+        return '';
+    }
+
+    return $value;
+}
+
+add_filter( 'woocommerce_order_item_subtotal', 'hoxa_hide_quote_order_item_subtotal', 10, 4 );
+function hoxa_hide_quote_order_item_subtotal( $subtotal, $item, $order, $tax_display ) {
+    if ( is_admin() && ! wp_doing_ajax() ) {
+        return $subtotal;
+    }
+
+    if ( hoxa_is_quote_stage() || ( function_exists( 'is_account_page' ) && is_account_page() ) ) {
+        return '';
+    }
+
+    return '';
+}
+
+add_filter( 'woocommerce_get_order_item_totals', 'hoxa_hide_quote_order_totals', 10, 2 );
+function hoxa_hide_quote_order_totals( $totals, $order ) {
+    if ( is_admin() && ! wp_doing_ajax() ) {
+        return $totals;
+    }
+
+    foreach ( $totals as $key => $total ) {
+        if ( isset( $total['value'] ) && ! in_array( $key, [ 'payment_method', 'customer_note' ], true ) ) {
+            $totals[ $key ]['value'] = '';
+        }
+    }
+
+    return $totals;
 }
