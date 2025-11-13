@@ -178,7 +178,7 @@ class WC_Catalog_Offer_Mode {
 
     public function simplify_checkout_fields( $fields ) {
         if ( isset( $fields['billing'] ) ) {
-            $allowed = [ 'billing_first_name', 'billing_last_name', 'billing_email', 'billing_phone' ];
+            $allowed = [ 'billing_first_name', 'billing_last_name', 'billing_phone' ];
 
             foreach ( $fields['billing'] as $key => $field ) {
                 if ( ! in_array( $key, $allowed, true ) ) {
@@ -200,21 +200,12 @@ class WC_Catalog_Offer_Mode {
                 $fields['billing']['billing_last_name']['class']       = [ 'form-row-wide' ];
             }
 
-            if ( isset( $fields['billing']['billing_email'] ) ) {
-                $fields['billing']['billing_email']['label']       = __( 'Adres e-mail', 'woo-catalog-offer-mode' );
-                $fields['billing']['billing_email']['placeholder'] = __( 'Adres e-mail', 'woo-catalog-offer-mode' );
-                $fields['billing']['billing_email']['priority']    = 30;
-                $fields['billing']['billing_email']['class']       = [ 'form-row-wide' ];
-                $fields['billing']['billing_email']['required']    = true;
-                $fields['billing']['billing_email']['type']        = 'email';
-            }
-
             if ( isset( $fields['billing']['billing_phone'] ) ) {
-                $fields['billing']['billing_phone']['label']       = __( 'Numer telefonu (opcjonalnie)', 'woo-catalog-offer-mode' );
-                $fields['billing']['billing_phone']['placeholder'] = __( 'Numer telefonu (opcjonalnie)', 'woo-catalog-offer-mode' );
-                $fields['billing']['billing_phone']['priority']    = 40;
+                $fields['billing']['billing_phone']['label']       = __( 'Numer telefonu', 'woo-catalog-offer-mode' );
+                $fields['billing']['billing_phone']['placeholder'] = __( 'Numer telefonu', 'woo-catalog-offer-mode' );
+                $fields['billing']['billing_phone']['priority']    = 30;
                 $fields['billing']['billing_phone']['class']       = [ 'form-row-wide' ];
-                $fields['billing']['billing_phone']['required']    = false;
+                $fields['billing']['billing_phone']['required']    = true;
             }
         }
 
@@ -227,9 +218,9 @@ class WC_Catalog_Offer_Mode {
         }
 
         if ( isset( $fields['order']['order_comments'] ) ) {
-            $fields['order']['order_comments']['label']       = __( 'Wiadomość (opcjonalnie)', 'woo-catalog-offer-mode' );
-            $fields['order']['order_comments']['placeholder'] = __( 'Możesz dodać dodatkowe informacje do zapytania.', 'woo-catalog-offer-mode' );
-            $fields['order']['order_comments']['required']    = false;
+            $fields['order']['order_comments']['label']       = __( 'Wiadomość', 'woo-catalog-offer-mode' );
+            $fields['order']['order_comments']['placeholder'] = __( 'Opisz swoje zapytanie lub dodatkowe potrzeby.', 'woo-catalog-offer-mode' );
+            $fields['order']['order_comments']['required']    = true;
             $fields['order']['order_comments']['priority']    = 50;
         }
 
