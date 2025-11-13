@@ -1338,38 +1338,67 @@ function zamien_zamowienie_na_zapytanie( $translated_text, $untranslated_text, $
 
 add_filter( 'woocommerce_checkout_fields', 'hoxa_customize_checkout_fields' );
 function hoxa_customize_checkout_fields( $fields ) {
-    if ( isset( $fields['billing'] ) ) {
-        $allowed = [ 'billing_first_name', 'billing_last_name', 'billing_phone' ];
+        if ( isset( $fields['billing'] ) ) {
+
+        // POZOSTAWIAMY: imię, nazwisko, e-mail, telefon
+        $allowed = [ 'billing_first_name', 'billing_last_name', 'billing_email', 'billing_phone' ];
 
         foreach ( $fields['billing'] as $key => $field ) {
-            if ( ! in_array( $key, $allowed, true ) ) {
-                unset( $fields['billing'][ $key ] );
+            if ( in_array( $key, $allowed, true ) ) {
+                // tych pól NIE chowamy
+                continue;
             }
+
+            // wszystko inne: niewymagane + schowane
+            $fields['billing'][ $key ]['required'] = false;
+
+            if ( isset( $fields['billing'][ $key ]['class'] ) && is_array( $fields['billing'][ $key ]['class'] ) ) {
+                $fields['billing'][ $key ]['class'][] = 'wc-offer-hidden-field';
+            } else {
+                $fields['billing'][ $key ]['class'] = [ 'wc-offer-hidden-field' ];
+            }
+
+            $fields['billing'][ $key ]['priority'] = isset( $fields['billing'][ $key ]['priority'] )
+                ? $fields['billing'][ $key ]['priority'] + 1000
+                : 1000;
         }
 
+        // Imię
         if ( isset( $fields['billing']['billing_first_name'] ) ) {
-            $fields['billing']['billing_first_name']['label']       = __( 'Imię', 'yourtheme' );
-            $fields['billing']['billing_first_name']['placeholder'] = __( 'Imię', 'yourtheme' );
+            $fields['billing']['billing_first_name']['label']       = __( 'Imię', 'woo-catalog-offer-mode' );
+            $fields['billing']['billing_first_name']['placeholder'] = __( 'Imię', 'woo-catalog-offer-mode' );
             $fields['billing']['billing_first_name']['priority']    = 10;
             $fields['billing']['billing_first_name']['class']       = [ 'form-row-wide' ];
         }
 
+        // Nazwisko
         if ( isset( $fields['billing']['billing_last_name'] ) ) {
-            $fields['billing']['billing_last_name']['label']       = __( 'Nazwisko', 'yourtheme' );
-            $fields['billing']['billing_last_name']['placeholder'] = __( 'Nazwisko', 'yourtheme' );
+            $fields['billing']['billing_last_name']['label']       = __( 'Nazwisko', 'woo-catalog-offer-mode' );
+            $fields['billing']['billing_last_name']['placeholder'] = __( 'Nazwisko', 'woo-catalog-offer-mode' );
             $fields['billing']['billing_last_name']['priority']    = 20;
             $fields['billing']['billing_last_name']['class']       = [ 'form-row-wide' ];
         }
 
+        // E-mail
+        if ( isset( $fields['billing']['billing_email'] ) ) {
+            $fields['billing']['billing_email']['label']       = __( 'Adres e-mail', 'woo-catalog-offer-mode' );
+            $fields['billing']['billing_email']['placeholder'] = __( 'Adres e-mail', 'woo-catalog-offer-mode' );
+            $fields['billing']['billing_email']['priority']    = 30;
+            $fields['billing']['billing_email']['class']       = [ 'form-row-wide' ];
+            $fields['billing']['billing_email']['required']    = true;
+        }
+
+        // Telefon
         if ( isset( $fields['billing']['billing_phone'] ) ) {
-            $fields['billing']['billing_phone']['label']       = __( 'Numer telefonu', 'yourtheme' );
-            $fields['billing']['billing_phone']['placeholder'] = __( 'Numer telefonu', 'yourtheme' );
-            $fields['billing']['billing_phone']['priority']    = 30;
+            $fields['billing']['billing_phone']['label']       = __( 'Numer telefonu', 'woo-catalog-offer-mode' );
+            $fields['billing']['billing_phone']['placeholder'] = __( 'Numer telefonu', 'woo-catalog-offer-mode' );
+            $fields['billing']['billing_phone']['priority']    = 40;
             $fields['billing']['billing_phone']['class']       = [ 'form-row-wide' ];
-            $fields['billing']['billing_phone']['required']    = true;
+            $fields['billing']['billing_phone']['required']    = false;
         }
     }
 
+    // nic nie wysyłamy, nie zakładamy kont
     if ( isset( $fields['shipping'] ) ) {
         $fields['shipping'] = [];
     }
@@ -1378,11 +1407,9 @@ function hoxa_customize_checkout_fields( $fields ) {
         $fields['account'] = [];
     }
 
+    // notatki do zamówienia zostają
     if ( isset( $fields['order']['order_comments'] ) ) {
-        $fields['order']['order_comments']['label']       = __( 'Wiadomość (opcjonalnie)', 'yourtheme' );
-        $fields['order']['order_comments']['placeholder'] = __( 'Tutaj możesz dodać dodatkowe informacje.', 'yourtheme' );
-        $fields['order']['order_comments']['required']    = false;
-        $fields['order']['order_comments']['priority']    = 50;
+        $fields['order']['order_comments']['priority'] = 50;
     }
 
     return $fields;
@@ -1462,4 +1489,43 @@ function hoxa_hide_quote_order_totals( $totals, $order ) {
     }
 
     return $totals;
+}
+// Remove billing address fields 
+
+// Ikona koszyka + ikona użytkownika w głównym menu
+add_filter( 'wp_nav_menu_items', 'ms_add_cart_and_account_icons_to_menu', 10, 2 );
+function ms_add_cart_and_account_icons_to_menu( $items, $args ) {
+
+    // Zmieniaj tylko główne menu – jeśli u Ciebie nazywa się inaczej niż 'primary', zmień to:
+    if ( $args->theme_location !== 'primary' ) {
+        return $items;
+    }
+
+    // Ikona koszyka (jeśli WooCommerce jest aktywne)
+    if ( function_exists( 'wc_get_cart_url' ) ) {
+        $cart_url = wc_get_cart_url();
+        $count    = ( WC()->cart ) ? WC()->cart->get_cart_contents_count() : 0;
+
+        $items .= '<li class="menu-item menu-item-type-woocommerce menu-item-cart">';
+        $items .= '<a href="' . esc_url( $cart_url ) . '" class="menu-cart-link">';
+        $items .= '<span class="menu-icon menu-icon-cart dashicons dashicons-cart"></span>';
+
+        // liczba produktów w koszyku
+//        $items .= '<span class="cart-count">' . intval( $count ) . '</span>';
+
+        $items .= '</a></li>';
+    }
+
+    // Ikona użytkownika / Moje konto
+    $account_page_id = get_option( 'woocommerce_myaccount_page_id' );
+    if ( $account_page_id ) {
+        $account_url = get_permalink( $account_page_id );
+
+        $items .= '<li class="menu-item menu-item-type-woocommerce menu-item-account">';
+        $items .= '<a href="' . esc_url( $account_url ) . '" class="menu-account-link">';
+        $items .= '<span class="menu-icon menu-icon-account dashicons dashicons-admin-users"></span>';
+        $items .= '</a></li>';
+    }
+
+    return $items;
 }

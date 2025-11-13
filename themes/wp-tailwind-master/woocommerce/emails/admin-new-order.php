@@ -71,4 +71,4 @@ if ( $additional_content ) {
 /*
  * @hooked WC_Emails::email_footer() Output the email footer
  */
-do_action( 'woocommerce_email_footer', $email );
+//do_action( 'woocommerce_email_footer', $email );

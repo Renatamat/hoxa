@@ -1,7 +1,7 @@
 <?php
 /**
  * Template Part: Product Filters (AJAX narrowing)
- */
+ */  
 
 defined('ABSPATH') || exit;
 

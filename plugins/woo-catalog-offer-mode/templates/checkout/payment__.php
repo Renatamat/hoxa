@@ -8,5 +8,5 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <div class="woocommerce-offer-info">
     <h3><?php esc_html_e( 'Ostatni krok', 'woo-catalog-offer-mode' ); ?></h3>
-    <p><?php esc_html_e( 'Nie pobieramy płatności online. Po otrzymaniu zapytania przygotujemy ofertę i skontaktujemy się z Tobą.', 'woo-catalog-offer-mode' ); ?></p>
+    <p><?php esc_html_e( 'Po otrzymaniu zapytania przygotujemy ofertę i skontaktujemy się z Tobą.', 'woo-catalog-offer-mode' ); ?></p>
 </div>

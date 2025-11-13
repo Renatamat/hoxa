@@ -28,11 +28,15 @@ $show_shipping = ! wc_ship_to_billing_address_only() && $order->needs_shipping_a
 
 	<?php endif; ?>
 
-	<h2 class="woocommerce-column__title"><?php esc_html_e( 'Dane osobowe', 'woocommerce' ); ?></h2>
+	<h2 class="woocommerce-column__title a"><?php esc_html_e( 'Dane osobowe', 'woocommerce' ); ?></h2>
 
 	<address>
 		<?php // echo wp_kses_post( $order->get_formatted_billing_address( esc_html__( 'N/A', 'woocommerce' ) ) ); ?>
-
+                <?php if ( $order->get_billing_first_name() || $order->get_billing_last_name() ) : ?>
+                     <p class="woocommerce-customer-details--name">
+                         <?php echo esc_html( trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() ) ); ?>
+                     </p>
+                 <?php endif; ?>
 		<?php if ( $order->get_billing_phone() ) : ?>
 			<p class="woocommerce-customer-details--phone"><?php echo esc_html( $order->get_billing_phone() ); ?></p>
 		<?php endif; ?>
@@ -58,7 +62,7 @@ $show_shipping = ! wc_ship_to_billing_address_only() && $order->needs_shipping_a
 		</div><!-- /.col-1 -->
 
 		<div class="woocommerce-column woocommerce-column--2 woocommerce-column--shipping-address col-2">
-			<h2 class="woocommerce-column__title"><?php esc_html_e( 'Dane osobowe', 'woocommerce' ); ?></h2>
+			<h2 class="woocommerce-column__title 2"><?php esc_html_e( 'Dane osobowe', 'woocommerce' ); ?></h2>
 			<address>
 				<?php // echo wp_kses_post( $order->get_formatted_shipping_address( esc_html__( 'N/A', 'woocommerce' ) ) ); ?>
 

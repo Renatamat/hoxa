@@ -53,12 +53,24 @@
 		@apply py-6;
 	}
 }
-
-.wc-block-components-checkout-place-order-button__text, a.wc-block-components-button{
+p.woocommerce-info{
+    border-top-color: rgb(243, 120, 54);
+    background-color: #f6f6f6;
+}
+p.woocommerce-info::before{
+    color:rgb(243, 120, 54);
+}
+.wc-block-components-checkout-place-order-button__text, a.wc-block-components-button, body #payment.woocommerce-checkout-payment button{
     @apply transition-all duration-200 p-4 px-6 mt-10 inline-block rounded-full text-white font-semibold text-sm;
     background-color: rgb(243, 120, 54);
-    color: white;
+    color: white; 
     &:hover{
-         background-color: #ffba00;
+         background-color: black;
     }
+}
+th.product-total , label.woocommerce-form__label.woocommerce-form__label-for-checkbox.checkbox{
+    display: none !important;
+}
+.woocommerce-checkout div#payment{
+    background: transparent;
 }

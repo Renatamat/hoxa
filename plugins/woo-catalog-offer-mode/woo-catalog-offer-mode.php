@@ -80,7 +80,15 @@ class WC_Catalog_Offer_Mode {
         // 12. uprość checkout do danych kontaktowych
         add_filter( 'woocommerce_checkout_fields', [ $this, 'simplify_checkout_fields' ] );
         add_filter( 'woocommerce_order_button_text', [ $this, 'order_button_text' ] );
+        add_filter( 'mailpoet_woocommerce_optin_enabled', '__return_false' );
 
+add_filter( 'woocommerce_default_address_fields', function( $fields ) {
+    if ( isset( $fields['postcode'] ) ) {
+        $fields['postcode']['required'] = false;
+        $fields['postcode']['validate'] = []; // usuwa walidację wzorca
+    }
+    return $fields;
+});
 
     }
 
@@ -107,7 +115,7 @@ class WC_Catalog_Offer_Mode {
     }
 
     public function info_checkout() {
-        echo '<p class="woocommerce-info">'.esc_html__( 'Uzupełnij dane, a prześlemy Ci wycenę i szczegóły dostawy. Nie pobieramy płatności online.', 'woo-catalog-offer-mode' ).'</p>';
+        echo '<p class="woocommerce-info">'.esc_html__( 'Uzupełnij dane, a prześlemy Ci wycenę.', 'woo-catalog-offer-mode' ).'</p>';
     }
 
     public function cart_title( $title ) {
