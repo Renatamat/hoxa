@@ -131,7 +131,8 @@ class WC_Catalog_Offer_Mode {
         .woocommerce ul.order_details li.total,
         .woocommerce ul.order_details li.order_total, 
         .wp-block-woocommerce-checkout-order-summary-totals-block, 
-        .wc-block-components-totals-item{
+        .wc-block-components-totals-item,
+        .wc-offer-hidden-field{
             display: none !important;
         }
         .wc-block-components-totals-wrapper{
@@ -181,9 +182,21 @@ class WC_Catalog_Offer_Mode {
             $allowed = [ 'billing_first_name', 'billing_last_name', 'billing_phone' ];
 
             foreach ( $fields['billing'] as $key => $field ) {
-                if ( ! in_array( $key, $allowed, true ) ) {
-                    unset( $fields['billing'][ $key ] );
+                if ( in_array( $key, $allowed, true ) ) {
+                    continue;
                 }
+
+                $fields['billing'][ $key ]['required'] = false;
+
+                if ( isset( $fields['billing'][ $key ]['class'] ) && is_array( $fields['billing'][ $key ]['class'] ) ) {
+                    $fields['billing'][ $key ]['class'][] = 'wc-offer-hidden-field';
+                } else {
+                    $fields['billing'][ $key ]['class'] = [ 'wc-offer-hidden-field' ];
+                }
+
+                $fields['billing'][ $key ]['priority'] = isset( $fields['billing'][ $key ]['priority'] )
+                    ? $fields['billing'][ $key ]['priority'] + 1000
+                    : 1000;
             }
 
             if ( isset( $fields['billing']['billing_first_name'] ) ) {
@@ -218,9 +231,6 @@ class WC_Catalog_Offer_Mode {
         }
 
         if ( isset( $fields['order']['order_comments'] ) ) {
-            $fields['order']['order_comments']['label']       = __( 'Wiadomość', 'woo-catalog-offer-mode' );
-            $fields['order']['order_comments']['placeholder'] = __( 'Opisz swoje zapytanie lub dodatkowe potrzeby.', 'woo-catalog-offer-mode' );
-            $fields['order']['order_comments']['required']    = true;
             $fields['order']['order_comments']['priority']    = 50;
         }
 
