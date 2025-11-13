@@ -37,8 +37,8 @@
     fd.append('action', 'pf_filter_terms');
     fd.append('nonce', nonce);
     fd.append('cat', cat);
-    fd.append('rozmiar', size);
-    fd.append('brand', brand);
+    fd.append('pa_rozmiar', size);
+    fd.append('product_brand', brand);
 
     fetch(url, { method: 'POST', body: fd, credentials: 'same-origin' })
       .then(r => r.json())

@@ -76,8 +76,12 @@ class WC_Catalog_Offer_Mode {
         // 11. w mailach linie pozycji na 0
         add_filter( 'woocommerce_order_item_get_subtotal', [ $this, 'force_zero' ], 9999, 2 );
         add_filter( 'woocommerce_order_item_get_total', [ $this, 'force_zero' ], 9999, 2 );
-        
-        
+
+        // 12. uprość checkout do danych kontaktowych
+        add_filter( 'woocommerce_checkout_fields', [ $this, 'simplify_checkout_fields' ] );
+        add_filter( 'woocommerce_order_button_text', [ $this, 'order_button_text' ] );
+
+
     }
 
     public function btn_text( $text ) {
@@ -170,6 +174,70 @@ class WC_Catalog_Offer_Mode {
 
     public function force_zero($val, $item) {
         return 0;
+    }
+
+    public function simplify_checkout_fields( $fields ) {
+        if ( isset( $fields['billing'] ) ) {
+            $allowed = [ 'billing_first_name', 'billing_last_name', 'billing_email', 'billing_phone' ];
+
+            foreach ( $fields['billing'] as $key => $field ) {
+                if ( ! in_array( $key, $allowed, true ) ) {
+                    unset( $fields['billing'][ $key ] );
+                }
+            }
+
+            if ( isset( $fields['billing']['billing_first_name'] ) ) {
+                $fields['billing']['billing_first_name']['label']       = __( 'Imię', 'woo-catalog-offer-mode' );
+                $fields['billing']['billing_first_name']['placeholder'] = __( 'Imię', 'woo-catalog-offer-mode' );
+                $fields['billing']['billing_first_name']['priority']    = 10;
+                $fields['billing']['billing_first_name']['class']       = [ 'form-row-wide' ];
+            }
+
+            if ( isset( $fields['billing']['billing_last_name'] ) ) {
+                $fields['billing']['billing_last_name']['label']       = __( 'Nazwisko', 'woo-catalog-offer-mode' );
+                $fields['billing']['billing_last_name']['placeholder'] = __( 'Nazwisko', 'woo-catalog-offer-mode' );
+                $fields['billing']['billing_last_name']['priority']    = 20;
+                $fields['billing']['billing_last_name']['class']       = [ 'form-row-wide' ];
+            }
+
+            if ( isset( $fields['billing']['billing_email'] ) ) {
+                $fields['billing']['billing_email']['label']       = __( 'Adres e-mail', 'woo-catalog-offer-mode' );
+                $fields['billing']['billing_email']['placeholder'] = __( 'Adres e-mail', 'woo-catalog-offer-mode' );
+                $fields['billing']['billing_email']['priority']    = 30;
+                $fields['billing']['billing_email']['class']       = [ 'form-row-wide' ];
+                $fields['billing']['billing_email']['required']    = true;
+                $fields['billing']['billing_email']['type']        = 'email';
+            }
+
+            if ( isset( $fields['billing']['billing_phone'] ) ) {
+                $fields['billing']['billing_phone']['label']       = __( 'Numer telefonu (opcjonalnie)', 'woo-catalog-offer-mode' );
+                $fields['billing']['billing_phone']['placeholder'] = __( 'Numer telefonu (opcjonalnie)', 'woo-catalog-offer-mode' );
+                $fields['billing']['billing_phone']['priority']    = 40;
+                $fields['billing']['billing_phone']['class']       = [ 'form-row-wide' ];
+                $fields['billing']['billing_phone']['required']    = false;
+            }
+        }
+
+        if ( isset( $fields['shipping'] ) ) {
+            $fields['shipping'] = [];
+        }
+
+        if ( isset( $fields['account'] ) ) {
+            $fields['account'] = [];
+        }
+
+        if ( isset( $fields['order']['order_comments'] ) ) {
+            $fields['order']['order_comments']['label']       = __( 'Wiadomość (opcjonalnie)', 'woo-catalog-offer-mode' );
+            $fields['order']['order_comments']['placeholder'] = __( 'Możesz dodać dodatkowe informacje do zapytania.', 'woo-catalog-offer-mode' );
+            $fields['order']['order_comments']['required']    = false;
+            $fields['order']['order_comments']['priority']    = 50;
+        }
+
+        return $fields;
+    }
+
+    public function order_button_text( $text ) {
+        return __( 'Wyślij zapytanie', 'woo-catalog-offer-mode' );
     }
 }
 
